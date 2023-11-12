@@ -34,7 +34,7 @@ state_error = zeros(3, k_max);
 % The state of control input 
 U_optim_recording= zeros(1, k_max);
 U0 = zeros(Np, 1);
-%% Eular's method
+%% Euler's method
 syms t
 G = expm(A * t_step);
 F = int(expm(A*t), t, 0, t_step)*B;
