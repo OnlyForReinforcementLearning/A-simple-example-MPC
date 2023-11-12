@@ -5,6 +5,6 @@ There are two different programs to show the MPC for tracking control for a line
 
 'MPC_QP' shows MPC for a linear system by using 'quadprog', and 'MPC_fmincon' shows MPC for a linear system by using 'fmincon'.
 
-Note that the model constraint doesn't contain in the 'quadprog' or 'fmincon'.
+Note that the model constraint doesn't contain in the linear constraints of 'quadprog' or 'fmincon', and 'fmincon' needs the terminal constraint which is shown in 'nonlinear'.
 
 Hope these two matlab programs can help you! 
