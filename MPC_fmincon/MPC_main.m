@@ -34,7 +34,7 @@ state_error = zeros(3, k_max);
 % The state of control input 
 U_optim_recording= zeros(1, k_max);
 U0 = zeros(Np, 1);
-%% Euler's method
+%% Eular's method
 syms t
 G = expm(A * t_step);
 F = int(expm(A*t), t, 0, t_step)*B;
@@ -50,6 +50,7 @@ Iter = 4000;
 %     'DiffMinChange',1e-5,'Algorithm','interior-point');
 optNLP = optimset('Display','off','TolFun', 1e-5, 'MaxIter', 4000,...
                 'LargeScale', 'off', 'RelLineSrchBnd', [], 'RelLineSrchBndDuration', 1);
+tic; % Recording the simulation time
 
 for k = 2:k_max + Np % k = [1, Np]
     state_leader(:, k) = leader_dynamics(state_leader(:, k - 1), k, t_step, t0, t_max);
