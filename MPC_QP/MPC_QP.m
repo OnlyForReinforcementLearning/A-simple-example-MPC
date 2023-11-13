@@ -62,7 +62,7 @@ end
 %%%  Due to the mosek, I have to use the code, and some details can be seen in MOSEK website 
  options = mskoptimset('');
 %  options = mskoptimset(options,'MaxTime','16');
-
+tic; % Recording the simulation time
 % The evolution of the follower's state
 for k = 2: k_max
     %Error state
