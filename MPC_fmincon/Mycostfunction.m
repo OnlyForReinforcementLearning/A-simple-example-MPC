@@ -9,10 +9,11 @@ function Cost = Mycostfunction(Np, state_follower, G, F, state_leader, U, Q, W, 
     Cost_u = 0;
     x_leader = state_leader;
     for k = 1: Np
-        Cost_process_x = Cost_process_x + sqrt((x_follower(:, k) - x_leader(:, k))' * Q * (x_follower(:, k) - x_leader(:, k)));
-        Cost_u = Cost_u + sqrt(U(k) * W * U(k));
+        %% Set a bigger values of the state's weight to achieve desired state.
+        Cost_process_x = Cost_process_x + 1000 * (x_follower(:, k) - x_leader(:, k))' * Q * (x_follower(:, k) - x_leader(:, k));
+        Cost_u = Cost_u + U(k) * W * U(k);
     end
-    Cost_terminal_x = sqrt((x_follower(:, Np + 1) - x_leader(:, Np + 1))' * F_q * (x_follower(:, Np + 1) - x_leader(:, Np + 1)));
+    Cost_terminal_x = (x_follower(:, Np + 1) - x_leader(:, Np + 1))' * F_q * (x_follower(:, Np + 1) - x_leader(:, Np + 1));
 
     Cost = Cost_process_x + Cost_terminal_x+Cost_u;
 end
