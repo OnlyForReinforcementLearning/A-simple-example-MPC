@@ -8,8 +8,8 @@ k_max = round((t_max - t0) / t_step);
 % Prediction horizon
 Np = 10;
 %%% Boundary 
-Umin = 20;
-Umax = 20;
+Umin = -30;
+Umax = 30;
 % Weighted parameters
 Q = eye(3);  % state weights
 W = eye(1); % control input weights
@@ -50,30 +50,32 @@ Iter = 4000;
 %     'DiffMinChange',1e-5,'Algorithm','interior-point');
 optNLP = optimset('Display','off','TolFun', 1e-5, 'MaxIter', 4000,...
                 'LargeScale', 'off', 'RelLineSrchBnd', [], 'RelLineSrchBndDuration', 1);
-tic; % Recording the simulation time
 
 for k = 2:k_max + Np % k = [1, Np]
     state_leader(:, k) = leader_dynamics(state_leader(:, k - 1), k, t_step, t0, t_max);
 end
 
 state_error(:, 1) = state_follower(:, 1) - state_leader(:, 1) + [D0; 0; 0];
-
+Start_total_time = tic; % Recording the total start time
 reference = cell(0);
 for k = 2:k_max
     Ai = []; b = []; Aeq = []; beq = []; % No linear constraints
-    lb = -Umin*ones(Np,1); %% Boundary
+    lb = Umin*ones(Np,1); %% Boundary
     ub = Umax*ones(Np,1); 
     reference = state_leader(:, k-1: k-1+Np) - repmat([D0;0;0], 1, Np+1);
+    Start_computing = tic; % Recording the start time of computing
     %%% MPC-Solver by using fmincon
     [UTemp,fval,exitflag,output] = fmincon(@(U)Mycostfunction(Np, state_follower(:, k-1), G, F, reference, U, Q, W, F_q),...
-    U0, Ai, b, Aeq, beq, lb, ub, @(U)Myconstraint(Np, state_follower(:, k-1), U, G, F, reference), optNLP);
+    U0, Ai, b, Aeq, beq, lb, ub, [], optNLP);
+    End_computing = toc(Start_computing); % Recording the end time of computing
     %%% Only use first optimal control input
     U_optim_recording(:, k) = UTemp(1);
     state_follower(:, k) = follower_dynamics(state_follower(:, k - 1), U_optim_recording(:, k), G, F);
     state_error(:, k) = state_follower(:, k) - state_leader(:, k) + [D0; 0; 0];
-    disp(['k = ', num2str(k), ', elapsed time = ', num2str(toc,'%.2f')]);
+    disp(['k = ', num2str(k), ', computing time = ', num2str(End_computing,'%.2f'), ', state_position_error=', num2str(state_error(1, k))]);
 end
-
+End_total_time = toc(Start_total_time); % Recording the total start time
+disp(['Total time=' num2str(End_total_time,'%.2f')]);
 t = (1:k_max+Np) * t_step;
 t1 = (1:k_max) * t_step;
 figure(1)
