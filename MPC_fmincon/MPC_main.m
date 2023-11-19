@@ -65,8 +65,12 @@ for k = 2:k_max
     reference = state_leader(:, k-1: k-1+Np) - repmat([D0;0;0], 1, Np+1);
     Start_computing = tic; % Recording the start time of computing
     %%% MPC-Solver by using fmincon
+%     [UTemp,fval,exitflag,output] = fmincon(@(U)Mycostfunction(Np, state_follower(:, k-1), G, F, reference, U, Q, W, F_q),...
+%     U0, Ai, b, Aeq, beq, lb, ub, [], optNLP);
+%  Based on nonlinear constraint, a smaller state error can be obtained.
+% The weights of cost function can be smaller but cost much time.
     [UTemp,fval,exitflag,output] = fmincon(@(U)Mycostfunction(Np, state_follower(:, k-1), G, F, reference, U, Q, W, F_q),...
-    U0, Ai, b, Aeq, beq, lb, ub, [], optNLP);
+    U0, Ai, b, Aeq, beq, lb, ub, @(U)Myconstraint(Np, state_follower(:, k-1), U, G, F, reference), optNLP);
     End_computing = toc(Start_computing); % Recording the end time of computing
     %%% Only use first optimal control input
     U_optim_recording(:, k) = UTemp(1);
